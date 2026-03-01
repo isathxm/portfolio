@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 export async function POST(request: Request) {
     try {
@@ -37,11 +38,16 @@ export async function POST(request: Request) {
             .substring(0, 50); // limit length
         const filename = `${safeName}_${timestamp}.${ext}`;
 
-        // Write file
+        // Write file with Sharp Compression
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const filePath = path.join(uploadDir, filename);
-        await fs.writeFile(filePath, buffer);
+
+        // Compress and resize image
+        await sharp(buffer)
+            .resize({ width: 1920, withoutEnlargement: true })
+            .jpeg({ quality: 80 }) // force jpeg output for consistency and compression, or let it guess
+            .toFile(filePath);
 
         // Return public URL path
         const publicPath = `/images/${projectId}/${filename}`;
