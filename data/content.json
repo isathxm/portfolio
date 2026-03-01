@@ -1,0 +1,111 @@
+{
+  "siteTitle": "Isaiah Thomas",
+  "projects": [
+    {
+      "id": "home",
+      "title": "",
+      "isHome": true,
+      "count": 16,
+      "images": [
+        "/images/home/DSC_7310.jpg",
+        "/images/home/DSCF7650.jpg",
+        "/images/home/DSC_1875.jpg",
+        "/images/home/DSC_6951.jpg",
+        "/images/home/DSC_2012.jpg",
+        "/images/home/2.jpg",
+        "/images/home/DSC_2959.jpg",
+        "/images/home/DSC_4154.jpg",
+        "/images/home/DSC_4386.jpg",
+        "/images/home/DSC_6171.jpg",
+        "/images/home/DSC_6563.jpg",
+        "/images/home/DSC_6713.jpg",
+        "/images/home/DSC_7425.jpg",
+        "/images/home/DSC_6810.jpg",
+        "/images/home/DSC_7054.jpg",
+        "/images/home/DSC_8300.jpg"
+      ]
+    },
+    {
+      "id": "hyper-visibility",
+      "title": "Hyper-Visibility",
+      "count": 6,
+      "images": [
+        "/images/hypervisibility/Occupy.jpg",
+        "/images/hypervisibility/Hyper-Visibility.jpg",
+        "/images/hypervisibility/Interiority.jpg",
+        "/images/hypervisibility/New Life.jpg",
+        "/images/hypervisibility/Against all odds.jpg"
+      ]
+    },
+    {
+      "id": "summer-2025",
+      "title": "Summer 2025",
+      "count": 9,
+      "images": [
+        "/images/summer-2025/DSC_2171.jpg",
+        "/images/summer-2025/DSC_2501.jpg",
+        "/images/summer-2025/DSC_2104.jpg",
+        "/images/summer-2025/DSC_2121.jpg",
+        "/images/summer-2025/DSC_2062.jpg",
+        "/images/summer-2025/DSC_2335.jpg",
+        "/images/summer-2025/DSC_3098.jpg",
+        "/images/summer-2025/DSC_3113.jpg"
+      ],
+      "year": ""
+    },
+    {
+      "id": "american-consumerism",
+      "title": "American Consumerism",
+      "meta": "",
+      "year": "2025",
+      "count": 9,
+      "images": [
+        "/images/american-consumerism/Dip 1.jpg",
+        "/images/american-consumerism/Dip 2.jpg",
+        "/images/american-consumerism/Dip 3.jpg",
+        "/images/american-consumerism/Dip 4.jpg",
+        "/images/american-consumerism/Dip 5.jpg",
+        "/images/american-consumerism/Dip 6.jpg",
+        "/images/american-consumerism/Dip 7.jpg",
+        "/images/american-consumerism/Dip 8.jpg",
+        "/images/american-consumerism/Dip 10.jpg"
+      ]
+    }
+  ],
+  "about": {
+    "contact": {
+      "email": "isathxm@gmail.com",
+      "instagram": "IG: @isathxm"
+    },
+    "bio": {
+      "text": "Isaiah Thomas is a photographer and emerging scholar based in the Dallas-Fort Worth Metroplex.\nHis work in photography explores the politics of individualism, identity, and the body in rapidly developing urban contexts.\nUtilizing portraiture, ancestral archives, and documentary work, he binds comprehension of black and queer identities to sensibilities of place.\nWith his background in sociology and environmental studies, he dedicates his work to critiques of modern social and environmental injustice.\nWhile currently volunteering for the DFW environmental justice organization, Downwinders at Risk,\nIsaiah is pursuing a Bachelor of Science in Sociology and a Bachelor of Arts in Environmental and Sustainability Studies at Texas Christian University.",
+      "locations": "Dallas, TX\nFort Worth, TX"
+    },
+    "education": {
+      "degrees": "Sociology (B.S.), Environmental and Sustainability Studies (B.A.)",
+      "school": "Texas Christian University",
+      "year": "2027"
+    },
+    "publications": [
+      {
+        "title": "Pride",
+        "publisher": "eleven40seven",
+        "volume": "Spring 2025 Volume 20.2",
+        "year": "2025"
+      },
+      {
+        "title": "A Dollar's Worth",
+        "publisher": "eleven40seven",
+        "volume": "Fall 2025 Volume 21.2",
+        "year": "2025"
+      }
+    ],
+    "shows": [
+      {
+        "title": "The Annual Juried Student Exhibition",
+        "location": "Fort Worth Contemporary Arts",
+        "year": "2025"
+      }
+    ]
+  }
+}
