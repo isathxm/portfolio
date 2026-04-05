@@ -337,7 +337,7 @@ export default function Home() {
                 <button onClick={() => scrollToSection('about')} className="hover:opacity-70 transition-opacity">
                     About
                 </button>
-                <a href="https://substack.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
+                <a href="https://sonsuburban.substack.com/" target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity">
                     Substack
                 </a>
             </div>
@@ -393,7 +393,7 @@ function Gallery({
             {/* Info and Click Hint */}
             <div className="mt-4 flex flex-col items-center gap-1 w-full">
 
-                <div className="text-xs leading-relaxed uppercase tracking-wide flex flex-col items-center gap-1 w-full">
+                <div className="text-[9px] md:text-[11px] leading-relaxed uppercase tracking-wide flex flex-col items-center gap-1 w-full">
 
                     {/* Title */}
                     {isEditing ? (
@@ -403,34 +403,34 @@ function Gallery({
                             onChange={(e) => onUpdate('title', e.target.value)}
                         />
                     ) : (
-                        <span>{project.title}</span>
+                        <span>{project.title} {project.year && `(${project.year})`}</span>
                     )}
 
-                    <div className="flex flex-wrap justify-center gap-1">
-                        {/* Meta */}
-                        {isEditing ? (
-                            <textarea
-                                className="text-center border border-gray-300 outline-none w-64 text-[10px] min-h-[40px]"
-                                value={project.meta || ''}
-                                onChange={(e) => onUpdate('meta', e.target.value)}
-                                placeholder="Meta info..."
-                            />
-                        ) : (
-                            project.meta && <span className="mx-1">• {project.meta.replace(/\n/g, ' ')}</span>
-                        )}
+                    {(isEditing || (project.meta && project.meta.trim() !== '')) && (
+                        <div className="flex flex-wrap justify-center gap-1">
+                            {/* Meta */}
+                            {isEditing ? (
+                                <textarea
+                                    className="text-center border border-gray-300 outline-none w-64 text-[10px] min-h-[40px]"
+                                    value={project.meta || ''}
+                                    onChange={(e) => onUpdate('meta', e.target.value)}
+                                    placeholder="Meta info..."
+                                />
+                            ) : (
+                                <span className="mx-1">• {project.meta?.replace(/\n/g, ' ')}</span>
+                            )}
 
-                        {/* Year */}
-                        {isEditing ? (
-                            <input
-                                className="text-center border-b border-gray-300 outline-none w-12"
-                                value={project.year || ''}
-                                onChange={(e) => onUpdate('year', e.target.value)}
-                                placeholder="Year"
-                            />
-                        ) : (
-                            project.year && <span className="mx-1">• {project.year}</span>
-                        )}
-                    </div>
+                            {/* Year */}
+                            {isEditing && (
+                                <input
+                                    className="text-center border-b border-gray-300 outline-none w-12"
+                                    value={project.year || ''}
+                                    onChange={(e) => onUpdate('year', e.target.value)}
+                                    placeholder="Year"
+                                />
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -631,12 +631,12 @@ function AboutContent({
     onUpdateShow: (index: number, field: string, value: string) => void
 }) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl w-full px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl w-full px-4 items-center">
 
             {/* Image Side */}
             <div className="flex items-center justify-center">
-                <div className="relative w-[250px] aspect-square rounded-full overflow-hidden bg-gray-200 grayscale contrast-125">
-                    {/* Placeholder for Headshot */}
+                <div className="relative w-[300px] md:w-[400px] h-auto overflow-hidden">
+                    <img src="/images/about/Scan_new.jpg" alt="Isaiah Thomas" className="w-full h-auto object-contain" />
                 </div>
             </div>
 

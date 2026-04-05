@@ -26,8 +26,20 @@
       ]
     },
     {
+      "id": "scans",
+      "title": "Head Hands Feet",
+      "year": "2025",
+      "count": 3,
+      "images": [
+        "/images/scans/Scan 2.jpg",
+        "/images/scans/Scan 4.jpg",
+        "/images/scans/Scan 3.jpg"
+      ]
+    },
+    {
       "id": "hyper-visibility",
       "title": "Hyper-Visibility",
+      "year": "2025",
       "count": 6,
       "images": [
         "/images/hypervisibility/Occupy.jpg",
