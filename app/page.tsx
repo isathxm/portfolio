@@ -328,7 +328,7 @@ export default function Home() {
             {/* 2. Scrollable Content Stream */}
             <div className="flex flex-col items-center w-full pt-[60px] pb-[60px]">
                 {content.projects.map((project, index) => (
-                    <section key={project.id} id={project.id} className="py-12 md:py-20 border-b border-dashed border-black/50 w-full flex flex-col items-center">
+                    <section key={project.id} id={project.id} className={`pb-12 md:pb-20 w-full flex flex-col items-center ${index === 0 ? 'pt-4 md:pt-6' : 'pt-12 md:pt-20'}`}>
                         <ProjectGrid
                             project={project}
                             isEditing={isEditing}
