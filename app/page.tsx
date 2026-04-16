@@ -433,7 +433,7 @@ function ProjectGrid({
     onOpenLightbox: (images: string[], index: number, title?: string, meta?: string) => void
 }) {
     return (
-        <div className="flex flex-col items-center w-full max-w-[90rem] mx-auto px-4 md:px-8">
+        <div className="flex flex-col items-center w-full px-4 md:px-8 lg:px-12">
             
             {/* Editing: Top Controls for Title/Meta */}
             {isEditing && (
@@ -461,9 +461,9 @@ function ProjectGrid({
             )}
 
             {/* Flex Row Layout */}
-            <div className="flex flex-row flex-wrap justify-center content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
+            <div className="flex flex-row flex-wrap justify-start content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
                 {project.images.map((img, idx) => (
-                    <div key={idx} className="h-[180px] sm:h-[260px] lg:h-[320px] flex items-center justify-center relative group">
+                    <div key={idx} className="h-[120px] sm:h-[180px] lg:h-[240px] flex items-center justify-center relative group">
                         <img 
                             src={img} 
                             alt={`${project.title} ${idx + 1}`} 
@@ -498,9 +498,9 @@ function ProjectGrid({
                     </div>
                 ))}
 
-                {/* Upload Image Button Placeholder inside grid layout */}
+                {/* Upload Image Button Placeholder inside flex layout */}
                 {isEditing && (
-                    <label className="w-[150px] md:w-[200px] h-[180px] sm:h-[260px] lg:h-[320px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label className="w-[120px] md:w-[150px] lg:w-[180px] h-[120px] sm:h-[180px] lg:h-[240px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
                         <input
                             type="file"
                             className="hidden"
