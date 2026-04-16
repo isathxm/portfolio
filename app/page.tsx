@@ -328,7 +328,7 @@ export default function Home() {
             {/* 2. Scrollable Content Stream */}
             <div className="flex flex-col items-center w-full pt-[60px] pb-[60px]">
                 {content.projects.map((project, index) => (
-                    <section key={project.id} id={project.id} className="pt-2 md:pt-6 pb-20 border-b border-black w-full flex flex-col items-center">
+                    <section key={project.id} id={project.id} className="py-12 md:py-20 border-b border-dashed border-black/50 w-full flex flex-col items-center">
                         <ProjectGrid
                             project={project}
                             isEditing={isEditing}
@@ -339,7 +339,7 @@ export default function Home() {
                 ))}
 
                 {/* About Section */}
-                <section id="about" className="py-8 md:py-16 flex items-center justify-center w-full bg-white">
+                <section id="about" className="py-12 md:py-20 flex items-center justify-center w-full bg-white">
                     <AboutContent
                         data={content.about}
                         isEditing={isEditing}
@@ -461,7 +461,7 @@ function ProjectGrid({
             )}
 
             {/* Flex Row Layout */}
-            <div className="flex flex-row flex-wrap justify-center content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
+            <div className="flex flex-row flex-wrap justify-center content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-8 md:gap-y-12 w-full px-0 sm:px-4">
                 {project.images.map((img, idx) => (
                     <div key={idx} className="h-[120px] sm:h-[180px] lg:h-[240px] flex items-center justify-center relative group">
                         <img 
