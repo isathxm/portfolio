@@ -51,11 +51,41 @@ export default function Home() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [activeSection, setActiveSection] = useState<string>('');
+    const [lightbox, setLightbox] = useState<{images: string[], index: number, title?: string, meta?: string} | null>(null);
+
+    const nextLightboxImage = () => {
+        if (!lightbox) return;
+        setLightbox({ ...lightbox, index: (lightbox.index + 1) % lightbox.images.length });
+    };
+
+    const prevLightboxImage = () => {
+        if (!lightbox) return;
+        setLightbox({ ...lightbox, index: (lightbox.index - 1 + lightbox.images.length) % lightbox.images.length });
+    };
 
     // --- Effects ---
     useEffect(() => {
         fetchContent();
     }, []);
+
+    useEffect(() => {
+        if (!content) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const sections = document.querySelectorAll('section');
+        sections.forEach((section) => observer.observe(section));
+
+        return () => {
+            sections.forEach((section) => observer.unobserve(section));
+        };
+    }, [content]);
 
     // --- Actions ---
     const fetchContent = async () => {
@@ -274,8 +304,11 @@ export default function Home() {
 
             {/* --- Main Layout --- */}
 
+            {/* Top White Bar */}
+            <div className="fixed top-0 left-0 w-full h-[60px] bg-white z-40"></div>
+
             {/* 1. Fixed Name (Left) */}
-            <div className="fixed top-8 left-5 md:top-1/2 md:-translate-y-1/2 md:left-6 z-50">
+            <div className="fixed top-5 left-5 md:top-6 md:left-6 z-50">
                 {isEditing ? (
                     <input
                         className="text-sm md:text-base font-medium tracking-tight border-b border-black outline-none bg-transparent w-32"
@@ -293,27 +326,20 @@ export default function Home() {
             </div>
 
             {/* 2. Scrollable Content Stream */}
-            <div className="flex flex-col items-center w-full">
+            <div className="flex flex-col items-center w-full pt-[60px] pb-[60px]">
                 {content.projects.map((project, index) => (
-                    <section key={project.id} id={project.id} className="min-h-screen py-32 flex items-center justify-center w-full">
-                        {project.isHome ? (
-                            <HomeSlideshow
-                                project={project}
-                                isEditing={isEditing}
-                                onUpdate={(field, val) => updateProject(index, field, val as any)}
-                            />
-                        ) : (
-                            <Gallery
-                                project={project}
-                                isEditing={isEditing}
-                                onUpdate={(field, val) => updateProject(index, field, val as any)}
-                            />
-                        )}
+                    <section key={project.id} id={project.id} className="pt-2 md:pt-6 pb-20 border-b border-black w-full flex flex-col items-center">
+                        <ProjectGrid
+                            project={project}
+                            isEditing={isEditing}
+                            onUpdate={(field, val) => updateProject(index, field, val as any)}
+                            onOpenLightbox={(images, idx, title, meta) => setLightbox({ images, index: idx, title, meta })}
+                        />
                     </section>
                 ))}
 
                 {/* About Section */}
-                <section id="about" className="min-h-screen py-32 flex items-center justify-center w-full bg-white">
+                <section id="about" className="py-8 md:py-16 flex items-center justify-center w-full bg-white">
                     <AboutContent
                         data={content.about}
                         isEditing={isEditing}
@@ -324,16 +350,29 @@ export default function Home() {
                 </section>
             </div>
 
-            {/* 3. Fixed Bottom Key Navigation */}
-            <div className="fixed bottom-5 md:bottom-6 left-5 md:left-6 flex flex-col gap-1 z-50 text-[10px] md:text-xs mix-blend-multiply leading-[0.6]">
-                {content.projects.filter(p => !p.isHome).map(p => (
-                    <button key={p.id} onClick={() => scrollToSection(p.id)} className="text-left hover:opacity-70 transition-opacity">
-                        {p.title}
-                    </button>
-                ))}
+            {/* 3. Bottom Marquee Ticker */}
+            <div className="fixed bottom-0 left-0 w-full h-[40px] md:h-[60px] bg-white z-50 flex items-center overflow-hidden">
+                <div className="animate-marquee flex items-center text-black text-[9px] md:text-[11px] tracking-widest font-medium uppercase min-w-max">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                        <div key={i} className="flex flex-row items-center whitespace-nowrap">
+                            {content.projects.filter(p => !p.isHome).map((p, idx) => (
+                                <div key={`${p.id}-${i}-${idx}`} className="flex flex-row items-center">
+                                    <button 
+                                        onClick={() => scrollToSection(p.id)} 
+                                        className={`hover:opacity-70 transition-all ${activeSection === p.id ? 'underline underline-offset-4' : ''}`}
+                                    >
+                                        {p.title}
+                                    </button>
+                                    <span className="mx-4 md:mx-6 opacity-50">—</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            <div className="fixed bottom-5 md:bottom-6 right-5 md:right-6 flex flex-col gap-1 items-end z-50 text-[10px] md:text-xs mix-blend-multiply leading-[0.6]">
+            {/* 4. About & Substack (Top Right) */}
+            <div className="fixed top-5 right-5 md:top-6 md:right-6 flex flex-row gap-6 items-center z-50 text-[9px] md:text-xs font-medium tracking-tight">
                 <button onClick={() => scrollToSection('about')} className="hover:opacity-70 transition-opacity">
                     About
                 </button>
@@ -342,277 +381,154 @@ export default function Home() {
                 </a>
             </div>
 
+            {/* 5. Lightbox Modal */}
+            {lightbox && (
+                <div 
+                    className="fixed inset-0 pt-[60px] pb-[60px] bg-white z-30 flex flex-col items-center justify-center p-8"
+                >
+                    <button 
+                        onClick={() => setLightbox(null)} 
+                        className="absolute top-[80px] right-8 md:right-12 text-xl md:text-2xl font-light hover:opacity-50 text-black cursor-pointer z-40"
+                    >
+                        ✕
+                    </button>
+
+                    {lightbox.images.length > 1 && (
+                        <>
+                            <button onClick={prevLightboxImage} className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 text-2xl md:text-6xl font-light hover:opacity-50 text-black z-40 p-4">‹</button>
+                            <button onClick={nextLightboxImage} className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 text-2xl md:text-6xl font-light hover:opacity-50 text-black z-40 p-4">›</button>
+                        </>
+                    )}
+
+                    <div className="relative w-full max-w-[90vw] h-full max-h-[75vh] flex items-center justify-center mb-4">
+                        <img 
+                            src={lightbox.images[lightbox.index]} 
+                            className="max-h-full max-w-full object-contain" 
+                            alt="Enlarged art piece"
+                        />
+                    </div>
+                    {(lightbox.title || lightbox.meta) && (
+                        <div className="text-center font-medium flex flex-col gap-1 text-[8px] md:text-[10px] tracking-widest uppercase text-black mt-2">
+                            {lightbox.title && <span>{lightbox.title}</span>}
+                            {lightbox.meta && <span className="opacity-70 normal-case">{lightbox.meta}</span>}
+                        </div>
+                    )}
+                </div>
+            )}
         </main>
     );
 }
 
 // --- Subcomponents ---
 
-function Gallery({
+function ProjectGrid({
     project,
     isEditing,
-    onUpdate
+    onUpdate,
+    onOpenLightbox
 }: {
     project: ContentData['projects'][0],
     isEditing: boolean,
-    onUpdate: (field: string, val: any) => void
+    onUpdate: (field: string, val: any) => void,
+    onOpenLightbox: (images: string[], index: number, title?: string, meta?: string) => void
 }) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-    const handleNextImage = () => {
-        if (isEditing) return; // Disable slideshow click when editing to avoid confusion
-        setCurrentImageIndex((prev) => (prev + 1) % project.images.length);
-    };
-
     return (
-        <div className="flex flex-col items-center max-w-4xl mx-auto text-center" >
-
-            {/* Image Container */}
-            <div
-                className={`relative overflow-hidden shadow-sm transition-all text-black ${!isEditing && 'cursor-pointer hover:opacity-95'}`}
-                onClick={handleNextImage}
-            >
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={currentImageIndex}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="flex items-center justify-center"
-                    >
-                        <img
-                            src={project.images[currentImageIndex]}
-                            alt={`${project.title} ${currentImageIndex + 1}`}
-                            className="h-[460px] md:h-[613px] w-auto object-contain"
-                        />
-                    </motion.div>
-                </AnimatePresence>
-            </div>
-
-            {/* Info and Click Hint */}
-            <div className="mt-4 flex flex-col items-center gap-1 w-full">
-
-                <div className="text-[9px] md:text-[11px] leading-relaxed uppercase tracking-wide flex flex-col items-center gap-1 w-full">
-
-                    {/* Title */}
-                    {isEditing ? (
-                        <input
-                            className="text-center border-b border-gray-300 outline-none w-full max-w-[200px]"
-                            value={project.title}
-                            onChange={(e) => onUpdate('title', e.target.value)}
-                        />
-                    ) : (
-                        <span>{project.title} {project.year && `(${project.year})`}</span>
-                    )}
-
-                    {(isEditing || (project.meta && project.meta.trim() !== '')) && (
-                        <div className="flex flex-wrap justify-center gap-1">
-                            {/* Meta */}
-                            {isEditing ? (
-                                <textarea
-                                    className="text-center border border-gray-300 outline-none w-64 text-[10px] min-h-[40px]"
-                                    value={project.meta || ''}
-                                    onChange={(e) => onUpdate('meta', e.target.value)}
-                                    placeholder="Meta info..."
-                                />
-                            ) : (
-                                <span className="mx-1">• {project.meta?.replace(/\n/g, ' ')}</span>
-                            )}
-
-                            {/* Year */}
-                            {isEditing && (
-                                <input
-                                    className="text-center border-b border-gray-300 outline-none w-12"
-                                    value={project.year || ''}
-                                    onChange={(e) => onUpdate('year', e.target.value)}
-                                    placeholder="Year"
-                                />
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Editing: Image Management */}
+        <div className="flex flex-col items-center w-full max-w-[90rem] mx-auto px-4 md:px-8">
+            
+            {/* Editing: Top Controls for Title/Meta */}
             {isEditing && (
-                <div className="mt-8 w-full max-w-2xl px-4">
-                    <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-4">Manage Images</h4>
-                    <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
-                        {project.images.map((img, idx) => (
-                            <div key={idx} className="relative group aspect-[3/4] bg-gray-50 border border-gray-200">
-                                <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt="" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                <div className="mb-8 w-full max-w-2xl px-4 flex flex-col gap-2 items-center bg-gray-50 border border-gray-200 p-4">
+                    <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-2">Edit Details</h4>
+                    <input
+                        className="text-center border-b border-gray-300 outline-none w-full max-w-[300px] text-xs bg-transparent"
+                        value={project.title}
+                        onChange={(e) => onUpdate('title', e.target.value)}
+                        placeholder="Project Title"
+                    />
+                    <textarea
+                        className="text-center border border-gray-300 outline-none w-full max-w-[300px] text-[10px] min-h-[40px] bg-transparent"
+                        value={project.meta || ''}
+                        onChange={(e) => onUpdate('meta', e.target.value)}
+                        placeholder="Meta info..."
+                    />
+                    <input
+                        className="text-center border-b border-gray-300 outline-none w-16 text-xs bg-transparent"
+                        value={project.year || ''}
+                        onChange={(e) => onUpdate('year', e.target.value)}
+                        placeholder="Year"
+                    />
+                </div>
+            )}
+
+            {/* Flex Row Layout */}
+            <div className="flex flex-row flex-wrap justify-center content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
+                {project.images.map((img, idx) => (
+                    <div key={idx} className="h-[180px] sm:h-[260px] lg:h-[320px] flex items-center justify-center relative group">
+                        <img 
+                            src={img} 
+                            alt={`${project.title} ${idx + 1}`} 
+                            className={`h-full w-auto object-contain transform transition-all ${!isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
+                            onClick={() => !isEditing && onOpenLightbox(project.images, idx, project.title, project.meta)}
+                        />
+                        {/* Editing Inline Image Controls */}
+                        {isEditing && (
+                            <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex gap-1">
                                     {idx > 0 && (
-                                        <button
-                                            onClick={() => {
-                                                const newImgs = [...project.images];
-                                                [newImgs[idx - 1], newImgs[idx]] = [newImgs[idx], newImgs[idx - 1]];
-                                                onUpdate('images', newImgs as any);
-                                            }}
-                                            className="bg-white text-black p-1 text-[10px]"
-                                        >
-                                            ←
-                                        </button>
-                                    )}
-                                    {idx < project.images.length - 1 && (
-                                        <button
-                                            onClick={() => {
-                                                const newImgs = [...project.images];
-                                                [newImgs[idx + 1], newImgs[idx]] = [newImgs[idx], newImgs[idx + 1]];
-                                                onUpdate('images', newImgs as any);
-                                            }}
-                                            className="bg-white text-black p-1 text-[10px]"
-                                        >
-                                            →
-                                        </button>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            const newImgs = project.images.filter((_, i) => i !== idx);
+                                        <button onClick={() => {
+                                            const newImgs = [...project.images];
+                                            [newImgs[idx - 1], newImgs[idx]] = [newImgs[idx], newImgs[idx - 1]];
                                             onUpdate('images', newImgs as any);
-                                        }}
-                                        className="bg-red-500 text-white p-1 text-[10px]"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        <label className="aspect-[3/4] border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                            <input
-                                type="file"
-                                className="hidden"
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-                                    formData.append('projectId', project.id);
-                                    try {
-                                        const res = await fetch('/api/upload', {
-                                            method: 'POST',
-                                            body: formData
-                                        });
-                                        const data = await res.json();
-                                        if (data.success) {
-                                            onUpdate('images', [...project.images, data.path] as any);
-                                        }
-                                    } catch (err) {
-                                        console.error('Upload failed', err);
-                                    }
-                                }}
-                            />
-                            <span className="text-xl text-gray-400">+</span>
-                        </label>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
-// --- Home Slideshow ---
-function HomeSlideshow({ project, isEditing, onUpdate }: {
-    project: ContentData['projects'][0],
-    isEditing: boolean,
-    onUpdate: (field: string, val: string[]) => void
-}) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-    useEffect(() => {
-        if (project.images.length <= 1) return;
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prev) => (prev + 1) % project.images.length);
-        }, 4000);
-        return () => clearInterval(interval);
-    }, [project.images.length]);
-
-    return (
-        <div className="flex flex-col items-center max-w-4xl mx-auto text-center">
-            <div className="relative overflow-hidden shadow-sm">
-                <img
-                    key={currentImageIndex}
-                    src={project.images[currentImageIndex]}
-                    alt=""
-                    className="h-[460px] md:h-[613px] w-auto object-contain"
-                />
-            </div>
-
-            {/* Editing: Image Management for Home (Same logic as Gallery) */}
-            {isEditing && (
-                <div className="mt-8 w-full max-w-2xl px-4">
-                    <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-4">Manage Home Slideshow</h4>
-                    <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
-                        {project.images.map((img, idx) => (
-                            <div key={idx} className="relative group aspect-[3/4] bg-gray-50 border border-gray-200">
-                                <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt="" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                                    {idx > 0 && (
-                                        <button
-                                            onClick={() => {
-                                                const newImgs = [...project.images];
-                                                [newImgs[idx - 1], newImgs[idx]] = [newImgs[idx], newImgs[idx - 1]];
-                                                onUpdate('images', newImgs);
-                                            }}
-                                            className="bg-white text-black p-1 text-[10px]"
-                                        >
-                                            ←
-                                        </button>
+                                        }} className="bg-white text-black p-1 text-[10px] shadow-sm">↑</button>
                                     )}
                                     {idx < project.images.length - 1 && (
-                                        <button
-                                            onClick={() => {
-                                                const newImgs = [...project.images];
-                                                [newImgs[idx + 1], newImgs[idx]] = [newImgs[idx], newImgs[idx + 1]];
-                                                onUpdate('images', newImgs);
-                                            }}
-                                            className="bg-white text-black p-1 text-[10px]"
-                                        >
-                                            →
-                                        </button>
+                                        <button onClick={() => {
+                                            const newImgs = [...project.images];
+                                            [newImgs[idx + 1], newImgs[idx]] = [newImgs[idx], newImgs[idx + 1]];
+                                            onUpdate('images', newImgs as any);
+                                        }} className="bg-white text-black p-1 text-[10px] shadow-sm">↓</button>
                                     )}
-                                    <button
-                                        onClick={() => {
-                                            const newImgs = project.images.filter((_, i) => i !== idx);
-                                            onUpdate('images', newImgs);
-                                        }}
-                                        className="bg-red-500 text-white p-1 text-[10px]"
-                                    >
-                                        ×
-                                    </button>
+                                    <button onClick={() => {
+                                        const newImgs = project.images.filter((_, i) => i !== idx);
+                                        onUpdate('images', newImgs as any);
+                                    }} className="bg-red-500 text-white p-1 text-[10px] shadow-sm">×</button>
                                 </div>
                             </div>
-                        ))}
-                        <label className="aspect-[3/4] border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                            <input
-                                type="file"
-                                className="hidden"
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-                                    formData.append('projectId', project.id);
-                                    try {
-                                        const res = await fetch('/api/upload', {
-                                            method: 'POST',
-                                            body: formData
-                                        });
-                                        const data = await res.json();
-                                        if (data.success) {
-                                            onUpdate('images', [...project.images, data.path]);
-                                        }
-                                    } catch (err) {
-                                        console.error('Upload failed', err);
-                                    }
-                                }}
-                            />
-                            <span className="text-xl text-gray-400">+</span>
-                        </label>
+                        )}
                     </div>
-                </div>
-            )}
+                ))}
+
+                {/* Upload Image Button Placeholder inside grid layout */}
+                {isEditing && (
+                    <label className="w-[150px] md:w-[200px] h-[180px] sm:h-[260px] lg:h-[320px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input
+                            type="file"
+                            className="hidden"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('projectId', project.id);
+                                try {
+                                    const res = await fetch('/api/upload', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        onUpdate('images', [...project.images, data.path] as any);
+                                    }
+                                } catch (err) {
+                                    console.error('Upload failed', err);
+                                }
+                            }}
+                        />
+                        <span className="text-xl text-gray-400">+</span>
+                        <span className="text-[10px] text-gray-400 mt-2">Add Image</span>
+                    </label>
+                )}
+            </div>
         </div>
     );
 }
