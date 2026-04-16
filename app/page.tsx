@@ -461,7 +461,7 @@ function ProjectGrid({
             )}
 
             {/* Flex Row Layout */}
-            <div className="flex flex-row flex-wrap justify-start content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
+            <div className="flex flex-row flex-wrap justify-center content-center gap-x-12 md:gap-x-20 lg:gap-x-24 gap-y-4 md:gap-y-6 w-full px-0 sm:px-4">
                 {project.images.map((img, idx) => (
                     <div key={idx} className="h-[120px] sm:h-[180px] lg:h-[240px] flex items-center justify-center relative group">
                         <img 
